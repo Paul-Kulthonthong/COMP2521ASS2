@@ -11,8 +11,27 @@
 #define MAX 100
 
 void PageRankW(d, diffPR, maxIterations){
+    getcollectionfilelist();
+
+
+
 
     return;
+}
+
+
+void getcollectionfilelist(){
+    FILE * collectionfile;
+    if ((collectionfile = fopen("collection.txt","r")) == NULL) {
+        fprintf(stderr, "Can't open file %s\n", collectionFilename);
+        return;
+	}
+    while(fscanf(f, "%s", filestemp) != EOF){
+        char * filename = getfiledir(dir, filestemp);
+        printf("Gonna go to this file: [%s]\n", filename);
+    }
+    return;
+
 }
 
 
