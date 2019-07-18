@@ -10,6 +10,12 @@
 
 #define MAX 100
 
+void PageRankW(d, diffPR, maxIterations){
+
+    return;
+}
+
+
 void gatherwebpages(char *collectionFilename){
     FILE *f;
     FILE *ff;
@@ -73,33 +79,8 @@ void gatherwebpages(char *collectionFilename){
         }
         printf("\n");
 
-    /*    printf("Section 2: ");
-        fscanf(ff, "%s", infileword);
-        fscanf(ff, "%s", infileword);
-        while(fscanf(ff, "%s", infileword) != EOF){
-            if(strcmp(infileword, "Section-2") != 0 || strcmp(infileword, "#end") != 0){
-                printf(" %s ", infileword);
-            }
-            if(strcmp(infileword, "Section-2") == 0){
-                break;
-            }
-        }
-        printf("\n");*/
-
-
         num_in_collection_file++;
     }
-
-    const char haystack[100] = "End of Subsection1";
-    const char needle[100] = "Sub";
-    char *ret;
-
-    ret = strstr(haystack, needle);
-
-    printf("The substring is: %s\n", ret);
-
-
-
 }
 
 char * getfiledir(char * dir, char *collectionfilename){
