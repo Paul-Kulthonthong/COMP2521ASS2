@@ -15,6 +15,6 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}*/
 
-    void PageRankW(d, diffPR, maxIterations);
+    PageRankW(0.85,  0.00001,  1000);
 
 }

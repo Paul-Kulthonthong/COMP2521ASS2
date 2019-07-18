@@ -10,32 +10,69 @@
 
 #define MAX 100
 
-void PageRankW(d, diffPR, maxIterations){
-    getcollectionfilelist();
+void PageRankW(float d, float diffPR, float maxIterations){
+    FileList returnedfilelist = getcollectionfilelist();
 
-
-
-
-    return;
-}
-
-
-void getcollectionfilelist(){
-    FILE * collectionfile;
-    if ((collectionfile = fopen("collection.txt","r")) == NULL) {
-        fprintf(stderr, "Can't open file %s\n", collectionFilename);
-        return;
-	}
-    while(fscanf(f, "%s", filestemp) != EOF){
-        char * filename = getfiledir(dir, filestemp);
-        printf("Gonna go to this file: [%s]\n", filename);
+    while(returnedfilelist != NULL){
+        printf("[%s]\n", returnedfilelist->filename);
+        returnedfilelist = returnedfilelist->next;
     }
-    return;
 
+
+    return;
 }
 
 
-void gatherwebpages(char *collectionFilename){
+FileList getcollectionfilelist(){
+    FILE * collectionfile;
+    char filestemp[MAX];
+    FileList returnlist = NULL;
+    if ((collectionfile = fopen("collection.txt","r")) == NULL) {
+        fprintf(stderr, "Can't open file collection.txt\n");
+        return NULL;
+	}
+    while(fscanf(collectionfile, "%s", filestemp) != EOF){
+        char * filename = getfiledir(filestemp);
+        returnlist = addtofilelist(returnlist, filename);
+    }
+    fclose(collectionfile);
+    return returnlist;
+}
+
+char * getfiledir(char *collectionfilename){
+    char *filedir = malloc((strlen(collectionfilename)+5)*sizeof(char));
+    strcat(filedir, collectionfilename);
+    strcat(filedir, ".txt");
+    strcat(filedir, "\0");
+    return filedir;
+}
+
+FileList newFileNode(char *inputfile){
+  FileList new = malloc(sizeof(struct FileListNode));
+  assert(new != NULL);
+  new->filename = malloc(strlen(inputfile)*sizeof(char) + 1);
+  strcpy(new->filename, inputfile);
+  new->next = NULL;
+  return new;
+}
+
+FileList addtofilelist(FileList addonto, char *inputfile){
+    FileList newfn = newFileNode(inputfile);
+    if(addonto == NULL){
+        addonto = newfn;
+        return addonto;
+    }
+    else{
+        FileList curr = addonto;
+        while(curr->next != NULL){
+            curr = curr->next;
+        }
+        curr->next = newfn;
+    }
+    return addonto;
+}
+
+/*void gatherwebpages(char *collectionFilename){
     FILE *f;
     FILE *ff;
     char filestemp[MAX];
@@ -102,12 +139,4 @@ void gatherwebpages(char *collectionFilename){
     }
 }
 
-char * getfiledir(char * dir, char *collectionfilename){
-    char *filedir = malloc((strlen(collectionfilename)+strlen(dir)+6)*sizeof(char));
-    strcpy(filedir, dir);
-    strcat(filedir, "/");
-    strcat(filedir, collectionfilename);
-    strcat(filedir, ".txt");
-    strcat(filedir, "\0");
-    return filedir;
-}
+*/
