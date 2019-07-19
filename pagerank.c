@@ -27,6 +27,14 @@ void PageRankW(float d, float diffPR, float maxIterations){
 
 //    List_Urls_PageRanks= calculatePageRank(g, d, diffPR, maxIterations);
 
+
+    float iteration = 0;
+    float diff = diffPR;   // to enter the following loop
+
+    While (iteration < maxIteration AND diff >= diffPR){
+
+        iteration++;
+    }
 //    Ordered_List_Urls_PageRanks= order (List_Urls_PageRanks)
 //    Output Ordered_List_Urls_PageRanksto “pagerankList.txt”
 
