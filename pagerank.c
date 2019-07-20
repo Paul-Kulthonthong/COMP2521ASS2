@@ -382,6 +382,18 @@ float *calculatePR(Graph g, float d, float diffPR, float maxIterations){
     return curr;
 }
 
+//THIS IS FOR PR LIST
+//------------------------------------------------------------------------------
+
+PRList newPRNode(char *name, float pr){
+  PRList new = malloc(sizeof(struct PRNode));
+  assert(new != NULL);
+  new->filename = malloc(strlen(name)*sizeof(char) + 1);
+  strcpy(new->filename, name);
+  new->next = NULL;
+  return new;
+}
+
 //THIS IS FOR PRINTING
 //------------------------------------------------------------------------------
 
@@ -448,4 +460,3 @@ void printpagerankinfo(Graph urlgraph){
 
 // dropGraph(Graph)
 // - clean up memory associated with Graph
-

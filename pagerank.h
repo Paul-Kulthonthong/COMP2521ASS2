@@ -12,6 +12,13 @@ struct FileListNode {
 };
 typedef struct FileListNode *FileList;
 
+struct PRNode {
+    char *filename;
+    float pr;
+	struct PRNode *next;
+};
+typedef struct PRNode *PRList;
+
 typedef struct GraphRep {
 	size_t nV;
 	size_t maxV;
@@ -42,6 +49,9 @@ float PRfirsthalf(Graph g, float d);
 float PRsecondhalf(Graph g, float d, float *prev, int pr_index);
 float calculatediff(Graph g, float *prev, float *curr);
 float *calculatePR(Graph g, float d, float diffPR, float maxIterations);
+
+PRList newPRNode(char *name, float pr);
+
 
 void printpagerankinfo(Graph urlgraph);
 
