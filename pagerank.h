@@ -32,7 +32,17 @@ int getnumofiles(FileList filelist);
 
 
 Graph getcollectiongraph(FileList file_list, int num_of_files);
+int getGraphindegree(Graph g, int index);
+int getGraphoutdegree(Graph g, int index);
+float *initialisePR(Graph g);
+float calculateWin(Graph g, int src, int dest);
+float calculateWout(Graph g, int src, int dest);
+float PRfirsthalf(Graph g, float d);
+float PRsecondhalf(Graph g, float d, float *prev, int pr_index);
+float calculatediff(Graph g, float *prev, float *curr);
+float *calculatePR(Graph g, float d, float diffPR, float maxIterations);
 
+void printpagerankinfo(Graph urlgraph);
 
 Graph newGraph (size_t maxV);
 void dropGraph (Graph g);

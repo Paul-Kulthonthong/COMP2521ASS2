@@ -14,30 +14,21 @@
 #define MAX 100
 
 void PageRankW(float d, float diffPR, float maxIterations){
+
     FileList filelistofurl = getcollectionfilelist();
+
     int num_of_files_in_collection = getnumofiles(filelistofurl);
-
-    printf("{%d}\n", num_of_files_in_collection);
-
     Graph urlgraph = getcollectiongraph(filelistofurl, num_of_files_in_collection);
-    showGraph(urlgraph, 1);
 
+    printpagerankinfo(urlgraph);
 
-    //printf("%d is part of vertex %s %s\n", urlgraph->edges[0][1], urlgraph->vertex[0], urlgraph->vertex[1]);
+    float *curr = calculatePR(urlgraph, d, diffPR, maxIterations);
 
-//    List_Urls_PageRanks= calculatePageRank(g, d, diffPR, maxIterations);
-
-
-    float iteration = 0;
-    float diff = diffPR;   // to enter the following loop
-
-    While (iteration < maxIteration AND diff >= diffPR){
-
-        iteration++;
+    int k = 0;
+    while(k<urlgraph->nV){
+        printf("%s, %d, %.7f\n", urlgraph->vertex[k], getGraphoutdegree(urlgraph, k),curr[k]);
+        k++;
     }
-//    Ordered_List_Urls_PageRanks= order (List_Urls_PageRanks)
-//    Output Ordered_List_Urls_PageRanksto “pagerankList.txt”
-
 
 
     return;
@@ -54,7 +45,10 @@ FileList getcollectionfilelist(){
         return NULL;
 	}
     while(fscanf(collectionfile, "%s", filestemp) != EOF){
-        char * filename = getfiledir(filestemp);
+        char * filename = malloc((strlen(filestemp)+1)*sizeof(char));
+        strcpy(filename, filestemp);
+        strcat(filename, "\0");
+        //char * filename = getfiledir(filestemp);
         returnlist = addtofilelist(returnlist, filename);
     }
     fclose(collectionfile);
@@ -112,12 +106,12 @@ Graph getcollectiongraph(FileList file_list, int num_of_files){
 
     Graph newgraph = newGraph((size_t)num_of_files);
     FILE *f;
-    char filestemp[MAX];
     char infileword[MAX];
+
 
     FileList curr = file_list;
     while(curr != NULL){
-        if ((f = fopen(curr->filename,"r")) == NULL) {
+        if ((f = fopen(getfiledir(curr->filename),"r")) == NULL) {
             fprintf(stderr, "Can't open file %s\n", curr->filename);
             return NULL;
     	}
@@ -132,8 +126,8 @@ Graph getcollectiongraph(FileList file_list, int num_of_files){
                 redflag--;
             }
             else{
-                if(strcmp(curr->filename, getfiledir(infileword)) != 0 ){
-                    addEdge(newgraph, curr->filename, getfiledir(infileword));
+                if(strcmp(curr->filename, infileword) != 0 ){
+                    addEdge(newgraph, curr->filename, infileword);
                 }
             }
         }
@@ -167,13 +161,6 @@ Graph newGraph (size_t maxV){
 	return new;
 }
 
-
-
-// addEdge(Graph,Src,Dest)
-// - add an edge from Src to Dest
-// - returns 1 if edge successfully added
-// - returns 0 if unable to add edge
-//   (usually because nV exceeds maxV)
 bool addEdge (Graph g, char *src, char *dest){
 	assert (g != NULL);
 
@@ -197,8 +184,6 @@ bool addEdge (Graph g, char *src, char *dest){
 	return true;
 }
 
-// isConnected(Graph,Src,Dest)
-// - check whether there is an edge from Src->Dest
 bool isConnected (Graph g, char *src, char *dest){
 	assert (g != NULL);
 	ssize_t v = vertexID (src, g->vertex, g->nV);
@@ -208,15 +193,11 @@ bool isConnected (Graph g, char *src, char *dest){
 	return g->edges[v][w] == 1;
 }
 
-// nVertices(Graph)
-// - return # vertices currently in Graph
 size_t nVertices (Graph g){
 	assert (g != NULL);
 	return g->nV;
 }
 
-// showGraph(Graph)
-// - display Graph
 void showGraph (Graph g, int mode){
 	assert (g != NULL);
 	if (g->nV == 0) {
@@ -243,11 +224,6 @@ void showGraph (Graph g, int mode){
 	}
 }
 
-// Helper functions
-
-// vertexID(Str,Names,N)
-// - searches for Str in array of Names[N]
-// - returns index of Str if found, -1 if not
 ssize_t vertexID (char *str, char **names, size_t N){
 	for (size_t i = 0; i < N; i++)
 		if (strEQ (str, names[i]))
@@ -255,33 +231,13 @@ ssize_t vertexID (char *str, char **names, size_t N){
 	return -1;
 }
 
-// addVertex(Str,Names,N)
-// - add Str at end of Names
 size_t addVertex (char *str, char **names, size_t N){
-	names[N] = strdup (str);
-	return N;
+    names[N] = malloc(strlen(str)+1);
+    assert(names[N]!=NULL);
+    strcpy(names[N], str);
+    return N;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// dropGraph(Graph)
-// - clean up memory associated with Graph
 void dropGraph (Graph g){
 	if (g == NULL)
 		return;
@@ -296,74 +252,198 @@ void dropGraph (Graph g){
 	free (g);
 }
 
+//THIS IS FOR CALCULATIONS
+//------------------------------------------------------------------------------
 
-
-
-/*void gatherwebpages(char *collectionFilename){
-    FILE *f;
-    FILE *ff;
-    char filestemp[MAX];
-    char infileword[MAX];
-    char *temp;
-    int num_in_collection_file = 0;
-
-    if ((f = fopen(collectionFilename,"r")) == NULL) {
-        fprintf(stderr, "Can't open file %s\n", collectionFilename);
-        return;
-	}
-
-    char *collectionfullcopy = malloc(strlen(collectionFilename)+1);
-    strcpy(collectionfullcopy, collectionFilename);
-    temp = dirname(collectionfullcopy);
-    char* dir = malloc(strlen(temp)*sizeof(char));
-    strcpy(dir, temp);
-
-    while(fscanf(f, "%s", filestemp) != EOF){
-        char * filename = getfiledir(dir, filestemp);
-        printf("Gonna go to this file: [%s]\n", filename);
-
-
-        if ((ff = fopen(filename,"r")) == NULL) {
-            fprintf(stderr, "Can't open file %s\n", filename);
-            return;
-      	}
-
-        rewind(ff);
-
-        printf("Section 1:\n");
-        fscanf(ff, "%s", infileword);
-        fscanf(ff, "%s", infileword);
-        while(fscanf(ff, "%s", infileword) != EOF){
-            if((strcmp(infileword, "Section-1") == 0) || (strcmp(infileword, "#end") == 0)){
-                //NOTHING
-            }
-            else{
-                printf("%s\n", infileword);
-            }
-            if(strcmp(infileword, "Section-1") == 0){
-                break;
-            }
+int getGraphindegree(Graph g, int index){
+    int i = 0;
+    int indegcounter = 0;
+    while(i<g->nV){
+        if(g->edges[i][index] == 1){
+            indegcounter++;
         }
-        printf("\n");
-
-        printf("Section 2:\n");
-        fscanf(ff, "%s", infileword);
-        fscanf(ff, "%s", infileword);
-        while(fscanf(ff, "%s", infileword) != EOF){
-            if((strcmp(infileword, "Section-2") == 0) || (strcmp(infileword, "#end") == 0)){
-                //NOTHING
-            }
-            else{
-                printf("%s\n", infileword);
-            }
-            if(strcmp(infileword, "Section-2") == 0){
-                break;
-            }
-        }
-        printf("\n");
-
-        num_in_collection_file++;
+        i++;
     }
+    return indegcounter;
 }
 
-*/
+int getGraphoutdegree(Graph g, int index){
+    int i = 0;
+    int outdegcounter = 0;
+    while(i<g->nV){
+        if(g->edges[index][i] == 1){
+            outdegcounter++;
+        }
+        i++;
+    }
+    return outdegcounter;
+}
+
+float *initialisePR(Graph g){
+    float *initial =  malloc((g->nV)*sizeof(float));
+    int i = 0;
+    while(i<g->nV){
+        initial[i] = 1/((float)(g->nV));
+        i++;
+    }
+    return initial;
+}
+
+float calculateWin(Graph g, int src, int dest){
+    float Win = 0;
+    float numerator = getGraphindegree(g, dest);
+    float denominator = 0;
+    int j = 0;
+    while(j < g->nV){
+        if(isConnected(g, g->vertex[src], g->vertex[j])){
+            denominator += getGraphindegree(g, j);
+        }
+        j++;
+    }
+    return Win = numerator/denominator;
+}
+
+float calculateWout(Graph g, int src, int dest){
+    float Wout = 0;
+    float numerator = getGraphoutdegree(g, dest);
+    if(numerator == 0){
+        numerator = 0.5;
+    }
+    float denominator = 0;
+    int j = 0;
+    while(j < g->nV){
+        if(isConnected(g, g->vertex[src], g->vertex[j])){
+            if(getGraphoutdegree(g, j) != 0){
+                denominator += getGraphoutdegree(g, j);
+            }
+            else{
+                denominator += 0.5;
+            }
+
+        }
+        j++;
+    }
+    return Wout = numerator/denominator;
+}
+
+float PRfirsthalf(Graph g, float d){
+    float firsthalfPR;
+    return firsthalfPR = (1-d)/((float)(g->nV));
+}
+
+float PRsecondhalf(Graph g, float d, float *prev, int pr_index){
+    int j = 0;
+    float sum_of_second_half = 0;
+    while(j < g->nV){
+        if(isConnected(g, g->vertex[j], g->vertex[pr_index])){
+            sum_of_second_half +=  prev[j]*calculateWin(g, j, pr_index)*calculateWout(g, j, pr_index);
+        }
+        j++;
+    }
+    return sum_of_second_half*d;
+}
+
+float calculatediff(Graph g, float *prev, float *curr){
+    float diff  = 0;
+    int i = 0;
+    while(i<g->nV){
+        //printf("i[%d] diff = %f - %f\n", i, curr[i], prev[i]);
+        if((curr[i]-prev[i])>=0){
+            diff = diff + (curr[i]-prev[i]);
+        }
+        else if((curr[i]-prev[i])<0){
+            diff = diff - (curr[i]-prev[i]);
+        }
+        i++;
+    }
+    return diff;
+}
+
+float *calculatePR(Graph g, float d, float diffPR, float maxIterations){
+    float *prev =  initialisePR(g);
+    float *curr =  initialisePR(g);
+    float iteration = 0;
+    float diff = diffPR;
+    while(iteration < maxIterations && diff >= diffPR){
+        int pi = 0;
+        while(pi<g->nV){
+            curr[pi] = PRfirsthalf(g, d) + PRsecondhalf(g, d, prev, pi);
+            pi++;
+        }
+        diff = calculatediff(g, prev, curr);
+        int q = 0;
+        while(q<g->nV){
+            prev[q] = curr[q];
+            q++;
+        }
+        iteration++;
+    }
+    return curr;
+}
+
+//THIS IS FOR PRINTING
+//------------------------------------------------------------------------------
+
+void printpagerankinfo(Graph urlgraph){
+
+    showGraph(urlgraph, 1);
+
+    printf("urlsNo {%zu}\n", urlgraph->nV);
+
+    int i = 0;
+    while(i<urlgraph->nV){
+        printf("nodeid: %d , indegree: %d , outdegree: %d\n", i, getGraphindegree(urlgraph, i), getGraphoutdegree(urlgraph, i));
+        i++;
+    }
+
+    int m = 0;
+    while(m<urlgraph->nV){
+        int n = 0;
+        while(n<urlgraph->nV){
+            if(isConnected(urlgraph, urlgraph->vertex[m], urlgraph->vertex[n])){
+                printf("Edge[%d][%d]: ", m, n);
+                printf("Win: %.7f , ", calculateWin(urlgraph, m, n));
+                printf("Wout: %.7f\n", calculateWout(urlgraph, m, n));
+            }
+            n++;
+        }
+        m++;
+    }
+
+    return;
+
+}
+
+
+
+
+
+
+
+
+// addEdge(Graph,Src,Dest)
+// - add an edge from Src to Dest
+// - returns 1 if edge successfully added
+// - returns 0 if unable to add edge
+//   (usually because nV exceeds maxV)
+
+// isConnected(Graph,Src,Dest)
+// - check whether there is an edge from Src->Dest
+
+// nVertices(Graph)
+// - return # vertices currently in Graph
+
+// showGraph(Graph)
+// - display Graph
+
+// Helper functions
+
+// vertexID(Str,Names,N)
+// - searches for Str in array of Names[N]
+// - returns index of Str if found, -1 if not
+
+// addVertex(Str,Names,N)
+// - add Str at end of Names
+
+// dropGraph(Graph)
+// - clean up memory associated with Graph

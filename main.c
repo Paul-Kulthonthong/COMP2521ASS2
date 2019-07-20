@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[])
 {
-	char fname[MAX];
+	//char fname[MAX];
 
   //Test if you input a collection of files txt
 /*	if (argc < 2) {
