@@ -25,12 +25,16 @@ void PageRankW(float d, float diffPR, float maxIterations){
 
     float *curr = calculatePR(urlgraph, d, diffPR, maxIterations);
 
-/*    int k = 0;
-    while(k<urlgraph->nV){
-        printf("%s, %d, %.7f\n", urlgraph->vertex[k], getGraphoutdegree(urlgraph, k),curr[k]);
-        k++;
+    PRList generatedPR = generatePRlist(urlgraph, curr);
+
+    printf("SORTED: \n");
+    PRList print = generatedPR;
+    while(print != NULL){
+        printf("%s, %d, %.7f\n", print->filename, print->outdegree, print->pr);
+        print = print->next;
     }
-*/
+
+
 
     return;
 }
@@ -209,8 +213,9 @@ void showGraph (Graph g, int mode){
 	printf ("Graph has %zu vertices:\n", g->nV);
 	if (mode == 1) {
 		for (size_t i = 0; i < g->nV; i++) {
+            printf("%zu -> %s|", i, g->vertex[i]);
 			for (size_t j = 0; j < g->nV; j++)
-				printf ("%d ", g->edges[i][j]);
+				printf ("  %d |", g->edges[i][j]);
 			putchar ('\n');
 		}
 	} else {
@@ -385,34 +390,68 @@ float *calculatePR(Graph g, float d, float diffPR, float maxIterations){
 //THIS IS FOR PR LIST
 //------------------------------------------------------------------------------
 
-PRList newPRNode(char *name, float pr){
+PRList newPRNode(char *name, int out,float prinput){
   PRList new = malloc(sizeof(struct PRNode));
   assert(new != NULL);
   new->filename = malloc(strlen(name)*sizeof(char) + 1);
   strcpy(new->filename, name);
+  new->outdegree = out;
+  new->pr = prinput;
   new->next = NULL;
   return new;
 }
 
-PRList generatePRlist(Graph g, float *pr_indexes){
-
+PRList generatePRlist(Graph g, float *pr){
     PRList returnlist = NULL;
     int i = 0;
     while(i<g->nV){
-        printf("%s, %d, %.7f\n", g->vertex[i], getGraphoutdegree(g, i),curr[i]
+        returnlist = insertPRnode(returnlist, g, pr, i);
         i++;
     }
+
     return returnlist;
 }
 
-/*
-PRList insertPRnode(PRList addonto, ){
+PRList insertPRnode(PRList addonto, Graph g, float *pr, int index){
+    PRList toadd = newPRNode(g->vertex[index], getGraphoutdegree(g, index), pr[index]);
 
+    PRList curr = addonto;
+    if(curr == NULL){
+        addonto = toadd;
+    }
+    else{
+        if(toadd->pr > curr->pr){
+            addonto = toadd;
+            addonto->next = curr;
+        }
+        else{
+            while(curr != NULL){
+                if(curr->next == NULL){
+                    curr->next = toadd;
+                    break;
+                }
+                else if(toadd->pr > curr->next->pr){
+                    toadd->next = curr->next;
+                    curr->next = toadd;
+                    break;
+                }
+                curr = curr->next;
+            }
+        }
+
+    }
+
+    return addonto;
 }
-*/
+
+void fprintPR(PRList print){
 
 
-//THIS IS FOR PRINTING
+    return;
+}
+
+
+//THIS IS FOR PRINTING GRAPH INFO
 //------------------------------------------------------------------------------
 
 void printpagerankinfo(Graph urlgraph){

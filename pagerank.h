@@ -51,8 +51,10 @@ float PRsecondhalf(Graph g, float d, float *prev, int pr_index);
 float calculatediff(Graph g, float *prev, float *curr);
 float *calculatePR(Graph g, float d, float diffPR, float maxIterations);
 
-PRList newPRNode(char *name, float pr);
+PRList newPRNode(char *name, int out,float prinput);
 PRList generatePRlist(Graph g, float *pr_indexes);
+PRList insertPRnode(PRList addonto, Graph g, float *pr, int index);
+void fprintPR(PRList print);
 
 
 void printpagerankinfo(Graph urlgraph);
