@@ -14,6 +14,7 @@ typedef struct FileListNode *FileList;
 
 struct PRNode {
     char *filename;
+    int outdegree;
     float pr;
 	struct PRNode *next;
 };
@@ -51,6 +52,7 @@ float calculatediff(Graph g, float *prev, float *curr);
 float *calculatePR(Graph g, float d, float diffPR, float maxIterations);
 
 PRList newPRNode(char *name, float pr);
+PRList generatePRlist(Graph g, float *pr_indexes);
 
 
 void printpagerankinfo(Graph urlgraph);

@@ -25,12 +25,12 @@ void PageRankW(float d, float diffPR, float maxIterations){
 
     float *curr = calculatePR(urlgraph, d, diffPR, maxIterations);
 
-    int k = 0;
+/*    int k = 0;
     while(k<urlgraph->nV){
         printf("%s, %d, %.7f\n", urlgraph->vertex[k], getGraphoutdegree(urlgraph, k),curr[k]);
         k++;
     }
-
+*/
 
     return;
 }
@@ -393,6 +393,24 @@ PRList newPRNode(char *name, float pr){
   new->next = NULL;
   return new;
 }
+
+PRList generatePRlist(Graph g, float *pr_indexes){
+
+    PRList returnlist = NULL;
+    int i = 0;
+    while(i<g->nV){
+        printf("%s, %d, %.7f\n", g->vertex[i], getGraphoutdegree(g, i),curr[i]
+        i++;
+    }
+    return returnlist;
+}
+
+/*
+PRList insertPRnode(PRList addonto, ){
+
+}
+*/
+
 
 //THIS IS FOR PRINTING
 //------------------------------------------------------------------------------
