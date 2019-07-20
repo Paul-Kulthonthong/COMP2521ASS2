@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 
 #define strEQ(g, t) (strcmp ((g), (t)) == 0)

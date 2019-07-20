@@ -8,6 +8,7 @@
 #include <err.h>
 #include <stdbool.h>
 #include <sysexits.h>
+#include <sys/types.h>
 
 #include "pagerank.h"
 
@@ -57,7 +58,7 @@ FileList getcollectionfilelist(){
 
 char * getfiledir(char *collectionfilename){
     char *filedir = malloc((strlen(collectionfilename)+5)*sizeof(char));
-    strcat(filedir, collectionfilename);
+    strcpy(filedir, collectionfilename);
     strcat(filedir, ".txt");
     strcat(filedir, "\0");
     return filedir;
@@ -447,3 +448,4 @@ void printpagerankinfo(Graph urlgraph){
 
 // dropGraph(Graph)
 // - clean up memory associated with Graph
+
