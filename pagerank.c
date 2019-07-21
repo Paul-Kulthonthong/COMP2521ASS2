@@ -27,14 +27,7 @@ void PageRankW(float d, float diffPR, float maxIterations){
 
     PRList generatedPR = generatePRlist(urlgraph, curr);
 
-    printf("SORTED: \n");
-    PRList print = generatedPR;
-    while(print != NULL){
-        printf("%s, %d, %.7f\n", print->filename, print->outdegree, print->pr);
-        print = print->next;
-    }
-
-
+    fprintPR(generatedPR);
 
     return;
 }
@@ -445,8 +438,16 @@ PRList insertPRnode(PRList addonto, Graph g, float *pr, int index){
 }
 
 void fprintPR(PRList print){
+    if (print == NULL) return;
+    FILE *output;
+    output = fopen("pagerankList.txt", "w");
 
+    while(print != NULL){
+        fprintf(output, "%s, %d, %.7f\n", print->filename, print->outdegree, print->pr);
+        print = print->next;
+    }
 
+    fclose(output);
     return;
 }
 

@@ -57,6 +57,7 @@ PRList insertPRnode(PRList addonto, Graph g, float *pr, int index);
 void fprintPR(PRList print);
 
 
+
 void printpagerankinfo(Graph urlgraph);
 
 Graph newGraph (size_t maxV);
