@@ -205,6 +205,7 @@ void showGraph (Graph g, int mode){
 
 	printf ("Graph has %zu vertices:\n", g->nV);
 	if (mode == 1) {
+
 		for (size_t i = 0; i < g->nV; i++) {
             printf("%zu -> %s|", i, g->vertex[i]);
 			for (size_t j = 0; j < g->nV; j++)
