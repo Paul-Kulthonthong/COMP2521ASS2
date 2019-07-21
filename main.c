@@ -10,11 +10,11 @@ int main(int argc, char *argv[])
 	//char fname[MAX];
 
   //Test if you input a collection of files txt
-/*	if (argc < 2) {
-		fprintf(stderr, "Usage: %s Collection of File Name\n", argv[0]);
+	if (argc < 4) {
+		fprintf(stderr, "Usage: %s damping-factor difference-in-PageRank-sum maximum-iterations\n", argv[0]);
 		return EXIT_FAILURE;
-	}*/
+	}
 
-    PageRankW(0.85,  0.00001,  1000);
+    PageRankW(atof(argv[1]),  atof(argv[2]),  atof(argv[3]));
 
 }
