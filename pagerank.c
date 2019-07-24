@@ -14,6 +14,19 @@
 
 #define MAX 100
 
+int main(int argc, char *argv[])
+{
+  //Test if you input a collection of files txt
+	if (argc < 4) {
+		fprintf(stderr, "Usage: %s damping-factor difference-in-PageRank-sum maximum-iterations\n", argv[0]);
+		return EXIT_FAILURE;
+	}
+
+    PageRankW(atof(argv[1]),  atof(argv[2]),  atof(argv[3]));
+    return 0;
+}
+
+
 void PageRankW(float d, float diffPR, float maxIterations){
 
     FileList filelistofurl = getcollectionfilelist();
