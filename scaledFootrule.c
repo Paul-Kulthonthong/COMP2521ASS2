@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
 
 
     };
+    printf("Optimal Cost is \n");
+    findMinCost(costMatrix);
 
 
     /*
@@ -53,21 +55,33 @@ int main(int argc, char *argv[])
         {45, 110, 95, 115}
     */
     CList c = createCList(argv);
+    int sizeofc = 0;
     CList rescur = c;
     while(rescur != NULL){
         printf("Clist: [%s]\n", rescur->url);
         CinnerList rescurcur = rescur->files;
 
         while(rescurcur != NULL){
-            printf("        %s, file#: %d, positioninfile: %d\n", rescurcur->filename, rescurcur->fileindex, rescurcur->urlindex);
+            printf("        %s, file#: %d, positioninfile: (%d out of %d)\n", rescurcur->filename, rescurcur->fileindex, rescurcur->urlindex, rescurcur->filewordcount);
             rescurcur = rescurcur->next;
         }
         rescur = rescur->next;
+        sizeofc++;
     }
-    printf("Optimal Cost is \n");
-    findMinDist(costMatrix);
 
+    float **footrulearray = calculatefootrule(c);
 
+    printf("This is the matrix: \n");
+    int y = 0;
+    while(y<sizeofc){
+        int x = 0;
+        while(x<sizeofc){
+            printf("%f ", footrulearray[y][x]);
+            x++;
+        }
+        printf("\n");
+        y++;
+    }
 
 
     return 0;
@@ -85,23 +99,31 @@ CList createCList(char **input){
     while(input[i] != NULL){
         if ((clistfile = fopen(input[i],"r")) == NULL) {
             fprintf(stderr, "Can't open file %s\n", input[i]);
-            return NULL;
-    	}
-        int urlindex = 1;
-        while(fscanf(clistfile, "%s", temp) != EOF){
-            CList tempnode = checkCnode(returnlist, temp);
-            if(tempnode == NULL){
-                returnlist = addtoClist(returnlist, temp);
-                addCfile(checkCnode(returnlist, temp), input[i], fileindex, urlindex);
 
+    	}
+        else{
+            int num_of_url = 0;
+            while(fscanf(clistfile, "%s", temp) != EOF){
+                num_of_url++;
             }
-            else{
-                addCfile(tempnode, input[i], fileindex, urlindex);
+
+            rewind(clistfile);
+            int urlindex = 1;
+            while(fscanf(clistfile, "%s", temp) != EOF){
+                CList tempnode = checkCnode(returnlist, temp);
+                if(tempnode == NULL){
+                    returnlist = addtoClist(returnlist, temp);
+                    addCfile(checkCnode(returnlist, temp), input[i], fileindex, urlindex, num_of_url);
+
+                }
+                else{
+                    addCfile(tempnode, input[i], fileindex, urlindex, num_of_url);
+                }
+                urlindex++;
             }
-            urlindex++;
+            fclose(clistfile);
+            fileindex++;
         }
-        fclose(clistfile);
-        fileindex++;
         i++;
     }
     return returnlist;
@@ -146,19 +168,20 @@ CList checkCnode(CList c, char *checkword){
     return returnvalue;
 }
 
-CinnerList newCinnerNode(char *filename, int fileindex, int urlindex){
+CinnerList newCinnerNode(char *filename, int fileindex, int urlindex, int filewordcount){
     CinnerList new = malloc(sizeof(struct CinnerNode));
     assert(new != NULL);
     new->filename = malloc(strlen(filename)*sizeof(char) + 1);
     strcpy(new->filename, filename);
     new->fileindex = fileindex;
     new->urlindex = urlindex;
+    new->filewordcount = filewordcount;
     new->next = NULL;
     return new;
 }
 
-void addCfile(CList cnode, char *filename, int fileindex, int urlindex){
-    CinnerList newcin = newCinnerNode(filename, fileindex, urlindex);
+void addCfile(CList cnode, char *filename, int fileindex, int urlindex, int filewordcount){
+    CinnerList newcin = newCinnerNode(filename, fileindex, urlindex, filewordcount);
     CinnerList rescur = cnode->files;
     if (cnode->files == NULL){
         cnode->files = newcin;
@@ -170,6 +193,56 @@ void addCfile(CList cnode, char *filename, int fileindex, int urlindex){
         }
         rescur->next = newcin;
     }
+}
+
+//THIS IS FOR CALCULATING SCALEDFOOTRULE
+//------------------------------------------------------------------------------
+
+float **calculatefootrule(CList c){
+    CList cur = c;
+    int size_of_c = 0;
+    while(cur!=NULL){
+        size_of_c++;
+        cur = cur->next;
+    }
+    //printf("Size of c: %d\n", size_of_c);
+
+    float **returnArray;
+    returnArray = calloc(size_of_c, sizeof(float *));
+    int j = 0;
+    while(j<size_of_c){
+        returnArray[j] = calloc(size_of_c, sizeof(float));
+        j++;
+    }
+
+    cur = c;
+    int y = 0;
+    while(cur!=NULL){
+        //printf("C analysis: [%s]  ", cur->url);
+        int i = 1;
+        int x = 0;
+        while(i<=size_of_c){
+        //    printf("%f ", calculatesinglefootrules(cur, i, size_of_c));
+            returnArray[y][x] = calculatesinglefootrules(cur, i, size_of_c);
+            i++;
+            x++;
+        }
+    //    printf("\n");
+        y++;
+        cur = cur->next;
+    }
+    return returnArray;
+}
+
+float calculatesinglefootrules(CList c, int position, int size_of_c){
+    float returnvalue = 0;
+    CinnerList cin = c->files;
+    while(cin!=NULL){
+        returnvalue += fabs(  ((float)cin->urlindex)/((float)cin->filewordcount)  - (float)position/(float)size_of_c ) ;
+        cin = cin->next;
+    }
+    //printf("%f \n", returnvalue);
+    return returnvalue;
 }
 
 //THIS IS FOR PRIORITY QUEUE
@@ -228,10 +301,10 @@ int QueueIsEmpty(Queue Q){
 
 // Function to allocate a new search tree node
 // Here Person x is assigned to job y
-SFRList newNode(int x, int y, bool assigned[], SFRList parent){
+SFRList newNode(int x, int y, bool assigned[], SFRList parent, int n){
     SFRList node = malloc(sizeof(struct SFRNode));
     int j = 0;
-    while(j < N){
+    while(j < n){
         node->assigned[j] = assigned[j];
         j++;
     }
@@ -279,6 +352,9 @@ int calculateCost(int costMatrix[N][N], int x, int y, bool assigned[]){
     return cost;
 }
 
+
+
+
 // print Assignments
 void printAssignments(SFRList min){
     if(min->parent==NULL){
@@ -286,19 +362,19 @@ void printAssignments(SFRList min){
     }
 
     printAssignments(min->parent);
-    printf("Assign Worker %c to Job %d\n", min->workerID + 'A', min->jobID);
+    printf("Assign Worker id: %c(%d) to Job %d\n", min->workerID+'A', min->workerID, min->jobID);
 
 }
 
 // Finds minimum cost using Branch and Bound.
-int findMinDist(int costMatrix[N][N]){
+int findMinCost(int costMatrix[N][N]){
     // Create a priority queue to store live nodes of
     // search tree;
     Queue nq = newQueue();
 
     // initailize heap to dummy node with cost 0
     bool assigned[N] = {false};
-    SFRList root = newNode(-1, -1, assigned, NULL);
+    SFRList root = newNode(-1, -1, assigned, NULL, N);
     root->pathCost = root->cost = 0;
     root->workerID = -1;
 
@@ -331,7 +407,7 @@ int findMinDist(int costMatrix[N][N]){
         if (!min->assigned[j])
         {
           // create a new tree node
-          SFRList child = newNode(i, j, min->assigned, min);
+          SFRList child = newNode(i, j, min->assigned, min, N);
 
           // cost for ancestors nodes including current node
           child->pathCost = min->pathCost + costMatrix[i][j];
@@ -347,3 +423,62 @@ int findMinDist(int costMatrix[N][N]){
     }
     return 0;
 }
+
+/*
+float findMinDist(float **costMatrix, int n){
+    // Create a priority queue to store live nodes of
+    // search tree;
+    Queue nq = newQueue();
+
+    // initailize heap to dummy node with cost 0
+    bool assigned[n] = {false};
+    SFRList root = newNode(-1, -1, assigned, NULL, n);
+    root->pathCost = root->cost = 0;
+    root->workerID = -1;
+
+    // Add dummy node to list of live nodes;
+    QueueJoin(nq, root);
+
+    // Finds a live node with least cost,
+    // add its childrens to list of live nodes and
+    // finally deletes it from the list.
+    while (!QueueIsEmpty(nq)){
+      // Find a live node with least estimated cost
+      SFRList min = QueueLeave(nq);
+
+      // The found node is deleted from the list of
+      // live nodes
+
+      // i stores next worker
+      int i = min->workerID + 1;
+
+      // if all workers are assigned a job
+      if (i == n)
+      {
+          printAssignments(min);
+          return min->cost;
+      }
+
+      // do for each job
+      for (int j = 0; j < n; j++){
+        // If unassigned
+        if (!min->assigned[j])
+        {
+          // create a new tree node
+          SFRList child = newNode(i, j, min->assigned, min, n);
+
+          // cost for ancestors nodes including current node
+          child->pathCost = min->pathCost + costMatrix[i][j];
+
+          // calculate its lower bound
+          child->cost = child->pathCost +
+            calculateCost(costMatrix, i, j, child->assigned);
+
+          // Add child to list of live nodes;
+          QueueJoin(nq, child);
+        }
+      }
+    }
+    return 0;
+}
+*/

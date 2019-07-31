@@ -38,6 +38,7 @@ struct CinnerNode{
     char *filename;
     int fileindex;
     int urlindex; //position in file
+    int filewordcount;
     struct CinnerNode *next;
 };
 typedef struct CinnerNode *CinnerList;
@@ -56,11 +57,14 @@ CList createCList(char **input);
 CList newCNode(char *inputurl);
 CList addtoClist(CList addonto, char *inputurl);
 CList checkCnode(CList c, char *checkword);
-CinnerList newCinnerNode(char *filename, int fileindex, int urlindex);
-void addCfile(CList cnode, char *filename, int fileindex, int urlindex);
+CinnerList newCinnerNode(char *filename, int fileindex, int urlindex, int filewordcount);
+void addCfile(CList cnode, char *filename, int fileindex, int urlindex, int filewordcount);
 
-SFRList newNode(int x, int y, bool assigned[], SFRList parent);
-int findMinDist(int costMatrix[N][N]);
+float **calculatefootrule(CList c);
+float calculatesinglefootrules(CList c, int position, int size_of_c);
+
+SFRList newNode(int x, int y, bool assigned[], SFRList parent, int n);
+int findMinCost(int costMatrix[N][N]);
 void printAssignments(SFRList min);
 int calculateCost(int costMatrix[N][N], int x, int y, bool assigned[]);
 
