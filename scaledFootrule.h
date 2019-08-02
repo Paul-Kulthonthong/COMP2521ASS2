@@ -12,9 +12,9 @@ struct SFRNode{
     struct SFRNode *parent;
     // contains cost for ancestors nodes
     // including current node
-    int pathCost;
+    double pathCost;
     // contains least promising cost
-    int cost;
+    double cost;
     // contain worker number
     int workerID;
     // contains Job ID
@@ -60,13 +60,16 @@ CList checkCnode(CList c, char *checkword);
 CinnerList newCinnerNode(char *filename, int fileindex, int urlindex, int filewordcount);
 void addCfile(CList cnode, char *filename, int fileindex, int urlindex, int filewordcount);
 
-float **calculatefootrule(CList c);
-float calculatesinglefootrules(CList c, int position, int size_of_c);
+double **calculatefootrule(CList c);
+double calculatesinglefootrules(CList c, int position, int size_of_c);
 
 SFRList newNode(int x, int y, bool assigned[], SFRList parent, int n);
-int findMinCost(int costMatrix[N][N]);
-void printAssignments(SFRList min);
-int calculateCost(int costMatrix[N][N], int x, int y, bool assigned[]);
+double findMinCost(double costMatrix[N][N]);
+void printAssignments(SFRList min, CList c);
+double calculateCost(double costMatrix[N][N], int x, int y, bool assigned[]);
+
+double findMinDist(double **costMatrix, int n, CList c);
+double calculateDist(double **costMatrix, int x, int y, bool assigned[], int n);
 
 Queue newQueue(); // create new empty queue
 void QueueJoin(Queue Q, SFRList Tojoin); // add item on queue

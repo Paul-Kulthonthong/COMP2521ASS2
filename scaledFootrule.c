@@ -10,6 +10,7 @@
 #include <sysexits.h>
 #include <sys/types.h>
 #include <limits.h>
+#include <float.h>
 
 #include "pagerank.h"
 #include "searchPagerank.h"
@@ -25,19 +26,18 @@ int main(int argc, char *argv[])
     // y-cordinate represents a Job
 
 
-
-    int costMatrix[N][N] =
+/*    double costMatrix[N][N] =
     {
-        {9, 2, 7, 8},
-        {6, 4, 3, 7},
-        {5, 8, 1, 8},
-        {7, 6, 9, 4}
+        {9.0, 2.0, 7.0, 8.0},
+        {6.0, 4.0, 3.0, 7.0},
+        {5.0, 8.0, 1.0, 8.0},
+        {7.0, 6.0, 9.0, 4.0}
 
 
     };
     printf("Optimal Cost is \n");
     findMinCost(costMatrix);
-
+*/
 
     /*
         {82, 83, 69, 92},
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
         sizeofc++;
     }
 
-    float **footrulearray = calculatefootrule(c);
+    double **footrulearray = calculatefootrule(c);
 
     printf("This is the matrix: \n");
     int y = 0;
@@ -82,6 +82,8 @@ int main(int argc, char *argv[])
         printf("\n");
         y++;
     }
+
+    printf("MIN DIST: %lf\n", findMinDist(footrulearray, sizeofc, c));
 
 
     return 0;
@@ -198,7 +200,7 @@ void addCfile(CList cnode, char *filename, int fileindex, int urlindex, int file
 //THIS IS FOR CALCULATING SCALEDFOOTRULE
 //------------------------------------------------------------------------------
 
-float **calculatefootrule(CList c){
+double **calculatefootrule(CList c){
     CList cur = c;
     int size_of_c = 0;
     while(cur!=NULL){
@@ -207,11 +209,11 @@ float **calculatefootrule(CList c){
     }
     //printf("Size of c: %d\n", size_of_c);
 
-    float **returnArray;
-    returnArray = calloc(size_of_c, sizeof(float *));
+    double **returnArray;
+    returnArray = calloc(size_of_c, sizeof(double *));
     int j = 0;
     while(j<size_of_c){
-        returnArray[j] = calloc(size_of_c, sizeof(float));
+        returnArray[j] = calloc(size_of_c, sizeof(double));
         j++;
     }
 
@@ -234,11 +236,11 @@ float **calculatefootrule(CList c){
     return returnArray;
 }
 
-float calculatesinglefootrules(CList c, int position, int size_of_c){
-    float returnvalue = 0;
+double calculatesinglefootrules(CList c, int position, int size_of_c){
+    double returnvalue = 0;
     CinnerList cin = c->files;
     while(cin!=NULL){
-        returnvalue += fabs(  ((float)cin->urlindex)/((float)cin->filewordcount)  - (float)position/(float)size_of_c ) ;
+        returnvalue += fabs(  ((double)cin->urlindex)/((double)cin->filewordcount)  - (double)position/(double)size_of_c ) ;
         cin = cin->next;
     }
     //printf("%f \n", returnvalue);
@@ -301,6 +303,7 @@ int QueueIsEmpty(Queue Q){
 
 // Function to allocate a new search tree node
 // Here Person x is assigned to job y
+// Using C++ code from 
 SFRList newNode(int x, int y, bool assigned[], SFRList parent, int n){
     SFRList node = malloc(sizeof(struct SFRNode));
     int j = 0;
@@ -316,17 +319,23 @@ SFRList newNode(int x, int y, bool assigned[], SFRList parent, int n){
     return node;
 }
 
+/*
+
 // Function to calculate the least promising cost
 // of node after worker x is assigned to job y.
-int calculateCost(int costMatrix[N][N], int x, int y, bool assigned[]){
-    int cost = 0;
+double calculateCost(double costMatrix[N][N], int x, int y, bool assigned[]){
+    double cost = 0;
     // to store unavailable jobs
-    bool available[N] = {true};
+    bool *available = malloc(N*sizeof(bool));
+    for(int g = 0;g<N;g++){
+        available[g] = true;
+    }
 
     // start from next worker
     for (int i = x + 1; i < N; i++)
     {
-        int min = INT_MAX, minIndex = -1;
+        double min = DBL_MAX;
+        int minIndex = -1;
 
         // do for each job
         for (int j = 0; j < N; j++)
@@ -339,11 +348,14 @@ int calculateCost(int costMatrix[N][N], int x, int y, bool assigned[]){
 
                 // store cost
                 min = costMatrix[i][j];
+
             }
         }
 
         // add cost of next worker
         cost += min;
+        printf("min:%lf\n", min);
+        printf("cost:%lf\n", cost);
 
         // job becomes unavailable
         available[minIndex] = false;
@@ -352,22 +364,53 @@ int calculateCost(int costMatrix[N][N], int x, int y, bool assigned[]){
     return cost;
 }
 
+*/
 
-
-
-// print Assignments
-void printAssignments(SFRList min){
-    if(min->parent==NULL){
-        return;
+double calculateDist(double **costMatrix, int x, int y, bool assigned[], int n){
+    double cost = 0;
+    // to store unavailable jobs
+    bool *available = malloc(n*sizeof(bool));
+    for(int g = 0;g<n;g++){
+        available[g] = true;
     }
 
-    printAssignments(min->parent);
-    printf("Assign Worker id: %c(%d) to Job %d\n", min->workerID+'A', min->workerID, min->jobID);
+    // start from next worker
+    for (int i = x + 1; i < n; i++)
+    {
+        double min = DBL_MAX;
+        int minIndex = -1;
 
+        // do for each job
+        for (int j = 0; j < n; j++)
+        {
+            // if job is unassigned
+            if (!assigned[j] && available[j] && costMatrix[i][j] < min)
+            {
+                // store job number
+                minIndex = j;
+
+                // store cost
+                min = costMatrix[i][j];
+
+            }
+        }
+
+        // add cost of next worker
+        cost += min;
+    //    printf("min:%lf\n", min);
+    //    printf("cost:%lf\n", cost);
+
+        // job becomes unavailable
+        available[minIndex] = false;
+    }
+
+    return cost;
 }
 
+/*
+
 // Finds minimum cost using Branch and Bound.
-int findMinCost(int costMatrix[N][N]){
+double findMinCost(double costMatrix[N][N]){
     // Create a priority queue to store live nodes of
     // search tree;
     Queue nq = newQueue();
@@ -412,9 +455,10 @@ int findMinCost(int costMatrix[N][N]){
           // cost for ancestors nodes including current node
           child->pathCost = min->pathCost + costMatrix[i][j];
 
+          printf("out: %lf\n",calculateCost(costMatrix, i, j, child->assigned));
+
           // calculate its lower bound
-          child->cost = child->pathCost +
-            calculateCost(costMatrix, i, j, child->assigned);
+          child->cost = child->pathCost + calculateCost(costMatrix, i, j, child->assigned);
 
           // Add child to list of live nodes;
           QueueJoin(nq, child);
@@ -424,14 +468,20 @@ int findMinCost(int costMatrix[N][N]){
     return 0;
 }
 
-/*
-float findMinDist(float **costMatrix, int n){
+*/
+
+// Finds minimum cost using Branch and Bound.
+double findMinDist(double **costMatrix, int n, CList c){
     // Create a priority queue to store live nodes of
     // search tree;
     Queue nq = newQueue();
 
     // initailize heap to dummy node with cost 0
-    bool assigned[n] = {false};
+    //bool assigned[n] = {false};
+    bool *assigned = malloc(n*sizeof(bool));
+    for(int g = 0;g<n;g++){
+        assigned[g] = false;
+    }
     SFRList root = newNode(-1, -1, assigned, NULL, n);
     root->pathCost = root->cost = 0;
     root->workerID = -1;
@@ -455,7 +505,7 @@ float findMinDist(float **costMatrix, int n){
       // if all workers are assigned a job
       if (i == n)
       {
-          printAssignments(min);
+          printAssignments(min, c);
           return min->cost;
       }
 
@@ -470,9 +520,10 @@ float findMinDist(float **costMatrix, int n){
           // cost for ancestors nodes including current node
           child->pathCost = min->pathCost + costMatrix[i][j];
 
+        //  printf("out: %lf\n",calculateDist(costMatrix, i, j, child->assigned, n));
+
           // calculate its lower bound
-          child->cost = child->pathCost +
-            calculateCost(costMatrix, i, j, child->assigned);
+          child->cost = child->pathCost + calculateDist(costMatrix, i, j, child->assigned, n);
 
           // Add child to list of live nodes;
           QueueJoin(nq, child);
@@ -481,4 +532,25 @@ float findMinDist(float **costMatrix, int n){
     }
     return 0;
 }
-*/
+
+
+
+// print Assignments
+void printAssignments(SFRList min, CList c){
+    if(min->parent==NULL){
+        return;
+    }
+
+
+
+
+    printAssignments(min->parent, c);
+    CList curr = c;
+    int i = 0;
+    while(i<min->workerID){
+        curr = curr->next;
+        i++;
+    }
+    printf("Assign Worker id: %c(%d)  %s to Position: %d\n", min->workerID+'A', min->workerID, curr->url, min->jobID + 1);
+
+}
