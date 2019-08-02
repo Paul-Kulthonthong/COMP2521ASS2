@@ -50,6 +50,12 @@ struct CNode{
 };
 typedef struct CNode *CList;
 
+struct PrintNode{
+    char *url;
+    int position;
+    struct PrintNode *next;
+};
+typedef struct PrintNode *PrintList;
 
 
 
@@ -62,10 +68,15 @@ void addCfile(CList cnode, char *filename, int fileindex, int urlindex, int file
 
 double **calculatefootrule(CList c);
 double calculatesinglefootrules(CList c, int position, int size_of_c);
+int Clistlength(CList c);
+void printmatrix(double **array, int n);
+
+PrintList newPrintNode(int s, char *c);
+PrintList createPrintList(PrintList addonto, int s, char *c);
+PrintList generatePrintList(PrintList p, SFRList min, CList c);
 
 SFRList newNode(int x, int y, bool assigned[], SFRList parent, int n);
 double findMinCost(double costMatrix[N][N]);
-void printAssignments(SFRList min, CList c);
 double calculateCost(double costMatrix[N][N], int x, int y, bool assigned[]);
 
 double findMinDist(double **costMatrix, int n, CList c);
