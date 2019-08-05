@@ -36,7 +36,7 @@ void searchpagerank(SearchList searchwords){
     ResultList rescur = sorted;
     int i = 0;
     while(rescur != NULL && i < 30){
-        printf("PR: [%s], %d, %.7f\n", rescur->url, rescur->num_of_words, rescur->pagerank);
+        printf("%s\n", rescur->url);
         rescur = rescur->next;
         i++;
     }

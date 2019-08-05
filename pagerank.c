@@ -34,7 +34,7 @@ void PageRankW(float d, float diffPR, float maxIterations){
     int num_of_files_in_collection = getnumofiles(filelistofurl);
     Graph urlgraph = getcollectiongraph(filelistofurl, num_of_files_in_collection);
 
-    printpagerankinfo(urlgraph);
+    //printpagerankinfo(urlgraph);
 
     float *curr = calculatePR(urlgraph, d, diffPR, maxIterations);
 
@@ -498,37 +498,3 @@ void printpagerankinfo(Graph urlgraph){
     return;
 
 }
-
-
-
-
-
-
-
-
-// addEdge(Graph,Src,Dest)
-// - add an edge from Src to Dest
-// - returns 1 if edge successfully added
-// - returns 0 if unable to add edge
-//   (usually because nV exceeds maxV)
-
-// isConnected(Graph,Src,Dest)
-// - check whether there is an edge from Src->Dest
-
-// nVertices(Graph)
-// - return # vertices currently in Graph
-
-// showGraph(Graph)
-// - display Graph
-
-// Helper functions
-
-// vertexID(Str,Names,N)
-// - searches for Str in array of Names[N]
-// - returns index of Str if found, -1 if not
-
-// addVertex(Str,Names,N)
-// - add Str at end of Names
-
-// dropGraph(Graph)
-// - clean up memory associated with Graph

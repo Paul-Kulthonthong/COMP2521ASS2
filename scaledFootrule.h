@@ -12,13 +12,13 @@ struct SFRNode{
     struct SFRNode *parent;
     // contains cost for ancestors nodes
     // including current node
-    double pathCost;
+    double total_dist;
     // contains least promising cost
-    double cost;
+    double dist;
     // contain worker number
-    int workerID;
+    int urlID;
     // contains Job ID
-    int jobID;
+    int matrixindex;
     // Boolean array assigned will contains
     // info about available jobs
     bool assigned[N];
@@ -76,8 +76,6 @@ PrintList createPrintList(PrintList addonto, int s, char *c);
 PrintList generatePrintList(PrintList p, SFRList min, CList c);
 
 SFRList newNode(int x, int y, bool assigned[], SFRList parent, int n);
-double findMinCost(double costMatrix[N][N]);
-double calculateCost(double costMatrix[N][N], int x, int y, bool assigned[]);
 
 double findMinDist(double **costMatrix, int n, CList c);
 double calculateDist(double **costMatrix, int x, int y, bool assigned[], int n);
