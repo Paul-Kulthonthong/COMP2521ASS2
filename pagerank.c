@@ -16,37 +16,33 @@
 
 int main(int argc, char *argv[])
 {
-  //Test if you input a collection of files txt
 	if (argc < 4) {
 		fprintf(stderr, "Usage: %s damping-factor difference-in-PageRank-sum maximum-iterations\n", argv[0]);
 		return EXIT_FAILURE;
 	}
-
     PageRankW(atof(argv[1]),  atof(argv[2]),  atof(argv[3]));
     return 0;
 }
 
+//Find the pagerank of urls within a collectionfile and list them in order within a text file called "pagerankList.txt"
 
 void PageRankW(float d, float diffPR, float maxIterations){
 
     FileList filelistofurl = getcollectionfilelist();
-
     int num_of_files_in_collection = getnumofiles(filelistofurl);
     Graph urlgraph = getcollectiongraph(filelistofurl, num_of_files_in_collection);
 
     //printpagerankinfo(urlgraph);
 
     float *curr = calculatePR(urlgraph, d, diffPR, maxIterations);
-
     PRList generatedPR = generatePRlist(urlgraph, curr);
-
     fprintPR(generatedPR);
-
     return;
 }
 
 //THIS IS FOR CREATING THE LINK LIST OF FILES TO BE OPENED
 //------------------------------------------------------------------------------
+//Within a collection file collect all the urls and produce a unordered linklist with struct type FileList
 FileList getcollectionfilelist(){
     FILE * collectionfile;
     char filestemp[MAX];
@@ -66,6 +62,7 @@ FileList getcollectionfilelist(){
     return returnlist;
 }
 
+//Get the file directory to open the url file
 char * getfiledir(char *collectionfilename){
     char *filedir = malloc((strlen(collectionfilename)+5)*sizeof(char));
     strcpy(filedir, collectionfilename);
@@ -74,6 +71,7 @@ char * getfiledir(char *collectionfilename){
     return filedir;
 }
 
+//Creates the new filenode for the url linked list
 FileList newFileNode(char *inputfile){
   FileList new = malloc(sizeof(struct FileListNode));
   assert(new != NULL);
@@ -83,6 +81,7 @@ FileList newFileNode(char *inputfile){
   return new;
 }
 
+//Add the new filenode with the url onto the linked list
 FileList addtofilelist(FileList addonto, char *inputfile){
     FileList newfn = newFileNode(inputfile);
     if(addonto == NULL){
@@ -99,6 +98,7 @@ FileList addtofilelist(FileList addonto, char *inputfile){
     return addonto;
 }
 
+//Calculate the number of files within the collectionfile
 int getnumofiles(FileList filelist){
     int num_of_files_in_collection = 0;
     FileList curr = filelist;
@@ -113,6 +113,7 @@ int getnumofiles(FileList filelist){
 
 //THIS IS FOR CREATING THE GRAPH OF FILES OPENED
 //------------------------------------------------------------------------------
+//Creates the graph of url from the collection file based on the FileNode linked list
 Graph getcollectiongraph(FileList file_list, int num_of_files){
 
     Graph newgraph = newGraph((size_t)num_of_files);
@@ -148,6 +149,7 @@ Graph getcollectiongraph(FileList file_list, int num_of_files){
     return newgraph;
 }
 
+//Allocates memory for the new Graph of maximum size based on the number of url within the collection file
 Graph newGraph (size_t maxV){
 	Graph new = malloc (sizeof *new);
 	if (new == NULL)
@@ -172,6 +174,7 @@ Graph newGraph (size_t maxV){
 	return new;
 }
 
+//Adds an edge between two vertexes
 bool addEdge (Graph g, char *src, char *dest){
 	assert (g != NULL);
 
@@ -195,6 +198,7 @@ bool addEdge (Graph g, char *src, char *dest){
 	return true;
 }
 
+//Checks if two vertexes are connected by an edge
 bool isConnected (Graph g, char *src, char *dest){
 	assert (g != NULL);
 	ssize_t v = vertexID (src, g->vertex, g->nV);
@@ -204,11 +208,13 @@ bool isConnected (Graph g, char *src, char *dest){
 	return g->edges[v][w] == 1;
 }
 
+//Returns the number of vertexes in the graph
 size_t nVertices (Graph g){
 	assert (g != NULL);
 	return g->nV;
 }
 
+//Prints out the graph for visual analysis
 void showGraph (Graph g, int mode){
 	assert (g != NULL);
 	if (g->nV == 0) {
@@ -237,6 +243,7 @@ void showGraph (Graph g, int mode){
 	}
 }
 
+//Finds a vertex's index within the graph matrix
 ssize_t vertexID (char *str, char **names, size_t N){
 	for (size_t i = 0; i < N; i++)
 		if (strEQ (str, names[i]))
@@ -244,6 +251,7 @@ ssize_t vertexID (char *str, char **names, size_t N){
 	return -1;
 }
 
+//Adds on a new vertex onto the graph matrix
 size_t addVertex (char *str, char **names, size_t N){
     names[N] = malloc(strlen(str)+1);
     assert(names[N]!=NULL);
@@ -251,6 +259,7 @@ size_t addVertex (char *str, char **names, size_t N){
     return N;
 }
 
+//Deletes memory associated of the graph
 void dropGraph (Graph g){
 	if (g == NULL)
 		return;
@@ -267,7 +276,7 @@ void dropGraph (Graph g){
 
 //THIS IS FOR CALCULATIONS
 //------------------------------------------------------------------------------
-
+//Calculate the in-degree of specific vertex
 int getGraphindegree(Graph g, int index){
     int i = 0;
     int indegcounter = 0;
@@ -280,6 +289,7 @@ int getGraphindegree(Graph g, int index){
     return indegcounter;
 }
 
+//Calculate the out-degree of specific vertex
 int getGraphoutdegree(Graph g, int index){
     int i = 0;
     int outdegcounter = 0;
@@ -292,6 +302,7 @@ int getGraphoutdegree(Graph g, int index){
     return outdegcounter;
 }
 
+//Creating memory for an array of float needed to generate a page rank node linked list
 float *initialisePR(Graph g){
     float *initial =  malloc((g->nV)*sizeof(float));
     int i = 0;
@@ -302,6 +313,7 @@ float *initialisePR(Graph g){
     return initial;
 }
 
+//Calculate Win of two specfic nodes
 float calculateWin(Graph g, int src, int dest){
     float Win = 0;
     float numerator = getGraphindegree(g, dest);
@@ -316,6 +328,7 @@ float calculateWin(Graph g, int src, int dest){
     return Win = numerator/denominator;
 }
 
+//Calculate Wout of two specific nodes
 float calculateWout(Graph g, int src, int dest){
     float Wout = 0;
     float numerator = getGraphoutdegree(g, dest);
@@ -339,11 +352,13 @@ float calculateWout(Graph g, int src, int dest){
     return Wout = numerator/denominator;
 }
 
+//Calculate the first half of the pagerank equation
 float PRfirsthalf(Graph g, float d){
     float firsthalfPR;
     return firsthalfPR = (1-d)/((float)(g->nV));
 }
 
+//Calculate the second half of the pagerank equation
 float PRsecondhalf(Graph g, float d, float *prev, int pr_index){
     int j = 0;
     float sum_of_second_half = 0;
@@ -356,6 +371,7 @@ float PRsecondhalf(Graph g, float d, float *prev, int pr_index){
     return sum_of_second_half*d;
 }
 
+//Calculate the diff
 float calculatediff(Graph g, float *prev, float *curr){
     float diff  = 0;
     int i = 0;
@@ -372,6 +388,7 @@ float calculatediff(Graph g, float *prev, float *curr){
     return diff;
 }
 
+//Calculate the total PR and put it into a float array with corresponding vertex's ID index to the graph
 float *calculatePR(Graph g, float d, float diffPR, float maxIterations){
     float *prev =  initialisePR(g);
     float *curr =  initialisePR(g);
@@ -396,7 +413,7 @@ float *calculatePR(Graph g, float d, float diffPR, float maxIterations){
 
 //THIS IS FOR PR LIST
 //------------------------------------------------------------------------------
-
+//New Linked list is generated to print the pageranked url in order
 PRList newPRNode(char *name, int out,float prinput){
   PRList new = malloc(sizeof(struct PRNode));
   assert(new != NULL);
@@ -408,6 +425,7 @@ PRList newPRNode(char *name, int out,float prinput){
   return new;
 }
 
+//Creates a pagerank list based on a float array that has corresponding vertex's ID index to the graph
 PRList generatePRlist(Graph g, float *pr){
     PRList returnlist = NULL;
     int i = 0;
@@ -419,6 +437,7 @@ PRList generatePRlist(Graph g, float *pr){
     return returnlist;
 }
 
+//Insert the pagerank node in the correct order into the list
 PRList insertPRnode(PRList addonto, Graph g, float *pr, int index){
     PRList toadd = newPRNode(g->vertex[index], getGraphoutdegree(g, index), pr[index]);
 
@@ -451,6 +470,7 @@ PRList insertPRnode(PRList addonto, Graph g, float *pr, int index){
     return addonto;
 }
 
+//print the pagerank list onto a file called pagerankList.txt
 void fprintPR(PRList print){
     if (print == NULL) return;
     FILE *output;
@@ -468,7 +488,7 @@ void fprintPR(PRList print){
 
 //THIS IS FOR PRINTING GRAPH INFO
 //------------------------------------------------------------------------------
-
+//For the visual analysis of the graph
 void printpagerankinfo(Graph urlgraph){
 
     showGraph(urlgraph, 1);
