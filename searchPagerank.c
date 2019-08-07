@@ -18,19 +18,19 @@
 
 int main(int argc, char *argv[])
 {
-
     if (argc < 2) {
 		fprintf(stderr, "Usage: %s searchwords\n", argv[0]);
 		return EXIT_FAILURE;
 	}
-
     SearchList searchwords = createWordList(argv);
     searchpagerank(searchwords);
-
 }
 
 
-
+//From a input of words, search up the words within an invertedIndex.txt and then
+// print out the top 30 most relevant url based on the searched num_of_words
+// most relevant would be url containing the most matched words then if
+// same number of matched words, relevancy is determined by pagerank of url from pagerankList.txt
 void searchpagerank(SearchList searchwords){
     ResultList sorted = getassociatedurl(searchwords);
     ResultList rescur = sorted;
@@ -45,6 +45,7 @@ void searchpagerank(SearchList searchwords){
 
 //THIS IS FOR CREATING THE SEARCH WORD LINKED LIST
 //------------------------------------------------------------------------------
+//Create a linked list of the search words provided by the stdin via the keyboard command line
 SearchList createWordList(char **input){
     SearchList returnlist = NULL;
     int i = 1;
@@ -55,6 +56,7 @@ SearchList createWordList(char **input){
     return returnlist;
 }
 
+//Create the new search word node within the search word linked list
 SearchList newSearchNode(char *inputword){
   SearchList new = malloc(sizeof(struct SearchWordNode));
   assert(new != NULL);
@@ -64,6 +66,7 @@ SearchList newSearchNode(char *inputword){
   return new;
 }
 
+//Add the search word node onto the end of the linked list of search
 SearchList addtosearchlist(SearchList addonto, char *inputword){
     SearchList newsn = newSearchNode(inputword);
     if(addonto == NULL){
@@ -81,6 +84,9 @@ SearchList addtosearchlist(SearchList addonto, char *inputword){
 }
 //------------------------------------------------------------------------------
 
+//THIS IS FOR CREATING THE RESULT LINKED LIST
+//------------------------------------------------------------------------------
+//Return a link list of urls in order of the number of matched words and pagerank mentioned above
 ResultList getassociatedurl(SearchList searchwords){
     FILE * invertedindexfile;
     char temp[MAX];
@@ -132,6 +138,7 @@ ResultList getassociatedurl(SearchList searchwords){
     return returnlist;
 }
 
+//Creates the new node required of the linked list of relevant urls
 ResultList newResultNode(char *inputword){
   ResultList new = malloc(sizeof(struct ResultNode));
   assert(new != NULL);
@@ -143,6 +150,7 @@ ResultList newResultNode(char *inputword){
   return new;
 }
 
+//Add result nodes to the end of the linked list of relevant urls
 ResultList addtoresultlist(ResultList addonto, char *inputword){
     ResultList newsn = newResultNode(inputword);
     ResultList curr = addonto;
@@ -162,6 +170,8 @@ ResultList addtoresultlist(ResultList addonto, char *inputword){
     return addonto;
 }
 
+//Check if the link list of relevant urls already contain a specific url as we do not want duplicates but instead
+//increment the num_or_words of the already added url
 ResultList resultnodeexist(ResultList addonto, char *inputurl){
     ResultList curr = addonto;
     while(curr!=NULL){
@@ -173,6 +183,7 @@ ResultList resultnodeexist(ResultList addonto, char *inputurl){
     return curr;
 }
 
+//Get the associated pagerank of a particular url
 float getpagerank(char *inputurl){
     FILE * pagerank;
     float returnvalue = 0;
@@ -196,6 +207,7 @@ float getpagerank(char *inputurl){
     return returnvalue;
 }
 
+//Create a duplicate node of the finalised url result list
 ResultList duplicate(ResultList original){
   ResultList new = malloc(sizeof(struct ResultNode));
   assert(new != NULL);
@@ -207,6 +219,7 @@ ResultList duplicate(ResultList original){
   return new;
 }
 
+//Sort out the finalised url result list
 ResultList sortsearchresults(ResultList tosort){
     ResultList sorted = NULL;
     ResultList curr = tosort;

@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
 }
 
 //Find the pagerank of urls within a collectionfile and list them in order within a text file called "pagerankList.txt"
-
 void PageRankW(float d, float diffPR, float maxIterations){
 
     FileList filelistofurl = getcollectionfilelist();

@@ -22,7 +22,10 @@
 
 int main(int argc, char *argv[])
 {
-
+    if (argc < 2) {
+		fprintf(stderr, "Usage: %s file1 file2 ...\n", argv[0]);
+		return EXIT_FAILURE;
+	}
     CList c = createCList(argv);
     double **footrulearray = calculatefootrule(c);
     //printmatrix(footrulearray, Clistlength(c));
@@ -32,6 +35,7 @@ int main(int argc, char *argv[])
 
 //THIS IS FOR CREATING C LIST
 //------------------------------------------------------------------------------
+//This is for creating the C list (union of url between all files) scaled-footrule distance
 CList createCList(char **input){
     CList returnlist = NULL;
     int i = 1;
@@ -72,6 +76,7 @@ CList createCList(char **input){
     return returnlist;
 }
 
+//Creates the C list node required for the C list
 CList newCNode(char *inputurl){
     CList new = malloc(sizeof(struct CNode));
     assert(new != NULL);
@@ -82,6 +87,7 @@ CList newCNode(char *inputurl){
     return new;
 }
 
+//Adds new C list nodes to the to the end of the C list
 CList addtoClist(CList addonto, char *inputurl){
     CList newcn = newCNode(inputurl);
     if(addonto == NULL){
@@ -98,6 +104,7 @@ CList addtoClist(CList addonto, char *inputurl){
     return addonto;
 }
 
+//Checks if a specific url already exist within the C list as we do not want duplicate as we want to find to union
 CList checkCnode(CList c, char *checkword){
     CList returnvalue = NULL;
     CList rescur = c;
@@ -111,6 +118,7 @@ CList checkCnode(CList c, char *checkword){
     return returnvalue;
 }
 
+//Adds a linked list node within the C list node that has information on the specific file it was derived from
 CinnerList newCinnerNode(char *filename, int fileindex, int urlindex, int filewordcount){
     CinnerList new = malloc(sizeof(struct CinnerNode));
     assert(new != NULL);
@@ -123,6 +131,7 @@ CinnerList newCinnerNode(char *filename, int fileindex, int urlindex, int filewo
     return new;
 }
 
+//Adds onto the linked list of associated files which is the inner linked list of the C list nodes
 void addCfile(CList cnode, char *filename, int fileindex, int urlindex, int filewordcount){
     CinnerList newcin = newCinnerNode(filename, fileindex, urlindex, filewordcount);
     CinnerList rescur = cnode->files;
@@ -138,6 +147,7 @@ void addCfile(CList cnode, char *filename, int fileindex, int urlindex, int file
     }
 }
 
+//Finds the length of the C list
 int Clistlength(CList c){
     int size = 0;
     CList rescur = c;
@@ -157,6 +167,7 @@ int Clistlength(CList c){
 //THIS IS FOR CALCULATING SCALEDFOOTRULE
 //------------------------------------------------------------------------------
 
+//Returns a double array of type double that has all the calculated footrule of all possible position of each url
 double **calculatefootrule(CList c){
     CList cur = c;
     int size_of_c = 0;
@@ -193,6 +204,7 @@ double **calculatefootrule(CList c){
     return returnArray;
 }
 
+//Calculate the scaled-footrule distance of a ranking that places a url at a specific position
 double calculatesinglefootrules(CList c, int position, int size_of_c){
     double returnvalue = 0;
     CinnerList cin = c->files;
@@ -204,6 +216,7 @@ double calculatesinglefootrules(CList c, int position, int size_of_c){
     return returnvalue;
 }
 
+//Prints out the double array of the calculated footrule distances
 void printmatrix(double **array, int n){
 
     printf("This is the matrix: \n");
@@ -222,6 +235,7 @@ void printmatrix(double **array, int n){
 
 //THIS IS FOR PRIORITY QUEUE
 //------------------------------------------------------------------------------
+//Initialises a new queue to be used for the selection of the optimal position allocation
 Queue newQueue(){
 	Queue q;
 	q = malloc(sizeof(struct QueueRep));
@@ -231,6 +245,7 @@ Queue newQueue(){
 	return q;
 }
 
+//Adds onto the queue based on piority given by the greater distance
 void QueueJoin(Queue Q, SFRList Tojoin){
 	assert(Q != NULL);
     if(Q->head == NULL){
@@ -256,6 +271,7 @@ void QueueJoin(Queue Q, SFRList Tojoin){
     }
 }
 
+//Gets the head of the queue and pops its off
 SFRList QueueLeave(Queue Q){
 	assert(Q != NULL);
 	assert(Q->head != NULL);
@@ -268,12 +284,14 @@ SFRList QueueLeave(Queue Q){
 	return it;
 }
 
+//Check if the queue is empty
 int QueueIsEmpty(Queue Q){
 	return (Q->head == NULL);
 }
 
+//THIS IS FOR FINAL PRINT LIST
 //------------------------------------------------------------------------------
-
+//This is for creating the print list nodes for the printing the url in position order
 PrintList newPrintNode(int s, char *c){
     PrintList new = malloc(sizeof(struct PrintNode));
     assert(new != NULL);
@@ -284,6 +302,7 @@ PrintList newPrintNode(int s, char *c){
     return new;
 }
 
+//This creates a list of urls based on there position order
 PrintList createPrintList(PrintList addonto, int s, char *c){
     PrintList newpn = newPrintNode(s, c);
 
@@ -312,10 +331,13 @@ PrintList createPrintList(PrintList addonto, int s, char *c){
 }
 
 
+//THIS IS FOR CALCULATING THE FINAL POSITION FOR THE MOST OPTIMAL POSITION SELECTION
+//------------------------------------------------------------------------------
 // Function to allocate a new search tree node
-// Here url with index x  withoin the c-list is assigned to a specific column
+// Here url with index x within the c-list is assigned to a specific column
 // within the matrix passed in.
-// Using C++ reference code from
+// Using & modifiying C++ reference code from https://www.geeksforgeeks.org/job-assignment-problem-using-branch-and-bound/
+// This uses the branch and bound algorithm
 SFRList newNode(int x, int y, bool assigned[], SFRList parent, int n){
     SFRList node = malloc(sizeof(struct SFRNode));
     int j = 0;
@@ -331,6 +353,7 @@ SFRList newNode(int x, int y, bool assigned[], SFRList parent, int n){
     return node;
 }
 
+//This helps calculates the minimum distance and figuring which columns are unavailable
 double calculateDist(double **costMatrix, int x, int y, bool assigned[], int n){
     double dist = 0;
     // to store unavailable jobs
@@ -340,7 +363,6 @@ double calculateDist(double **costMatrix, int x, int y, bool assigned[], int n){
         available[g] = true;
         g++;
     }
-
     // start from next worker
     int i = x + 1;
     while(i<n){
@@ -352,25 +374,20 @@ double calculateDist(double **costMatrix, int x, int y, bool assigned[], int n){
             // if job is unassigned
             if (!assigned[j] && available[j] && costMatrix[i][j] < min)
             {
-                // store job number
+                // store job number & dist
                 minIndex = j;
-
-                // store dist
                 min = costMatrix[i][j];
-
             }
             j++;
         }
-
         // add dist of next worker
         dist += min;
-        // job column becomes unavailable
+        // matrix column becomes unavailable
         available[minIndex] = false;
         i++;
     }
     return dist;
 }
-
 
 // Finds minimum dist using Branch and Bound.
 double findMinDist(double **costMatrix, int n, CList c){
@@ -392,17 +409,13 @@ double findMinDist(double **costMatrix, int n, CList c){
     dummy->urlID = -1;
     QueueJoin(nq, dummy);
 
-    // Finds a live node with least dist,
-    // add its childrens to list of live nodes and
-    // finally deletes it from the list.
+    // Finds a live node with least dist and add its childrens to list of live nodes
     while (!QueueIsEmpty(nq)){
       // Find a live node with least estimated dist found node is deleted from the queue
       SFRList min = QueueLeave(nq);
-
       // i stores next worker
       int i = min->urlID + 1;
-
-      // if all workers are assigned a job
+      // if all workers are assigned a job print out the solution and then
       if (i == n)
       {
           printf("%.6f\n", min->dist);
@@ -436,8 +449,6 @@ double findMinDist(double **costMatrix, int n, CList c){
     }
     return 0;
 }
-
-
 
 // Generate the print list in order of their position
 PrintList generatePrintList(PrintList p, SFRList min, CList c){
