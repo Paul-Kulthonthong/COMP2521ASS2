@@ -353,6 +353,11 @@ SFRList newNode(int x, int y, bool assigned[], SFRList parent, int n){
     return node;
 }
 
+//BRANCH & BOUND ALGORITHM
+//Branch and bound is an algorithm design paradigm which is generally used for solving combinatorial optimization problems.
+//The algorithm explores branches of the tree and will disregard branch that cannot give a better result than the current one and hence
+//can reduce the amount of possibilities needed to traverse
+
 //This helps calculates the minimum distance and figuring which columns are unavailable
 double calculateDist(double **costMatrix, int x, int y, bool assigned[], int n){
     double dist = 0;
