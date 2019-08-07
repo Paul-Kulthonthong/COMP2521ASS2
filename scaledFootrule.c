@@ -304,6 +304,7 @@ PrintList createPrintList(PrintList addonto, int s, char *c){
             }
             curr = curr->next;
         }
+        newpn->next = curr->next;
         curr->next = newpn;
         return addonto;
     }
@@ -450,7 +451,7 @@ PrintList generatePrintList(PrintList p, SFRList min, CList c){
         curr = curr->next;
         i++;
     }
-    p = createPrintList(p, min->urlID, curr->url);
-    //printf("Assign Worker id: %c(%d)  %s to Position: %d\n", min->urlID+'A', min->urlID, curr->url, min->matrixindex + 1);
+    p = createPrintList(p, min->matrixindex + 1, curr->url);
+//    printf("Assign Worker id: %c(%d)  %s to Position: %d\n", min->urlID+'A', min->urlID, curr->url, min->matrixindex + 1);
     return p;
 }
